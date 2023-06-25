@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .content {
+            width: 300px;
+            height: 150px;
+            margin: 0 auto;
+            overflow: hidden;
+            word-break: break-all;
+        }
+        .range {
+            text-align: center;
+            margin-top: 20px;
+            position: fixed;
+            width: 100%;
+            top: 400px;
+        }
+        .range div {
+            margin-top: 10px;
+        }
+        .range span {
+            width: 80px;
+            text-align: left;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text,test text</div>
+    <div class="range">
+       <div>
+            <span>width: </span>
+            <input type="range" oninput="change(1, event)" min="0" max="200" value="0">
+       </div>
+       <div>
+            <span>height: </span>
+            <input type="range" oninput="change(2, event)" min="0" max="200" value="0">
+       </div>
+    </div>
+    <script src="./ninePatch.js"></script>
+    <script>
+        const url = './aapt-windows/res.png'
+        fetch(url).then(res => {
+            return res.arrayBuffer()
+        }).then(res => {
+            document.querySelector('.content').style.cssText = `border-image: url(${url}); ` + ninePatch.generateCss(ninePatch.decode(new Uint8Array(res)))
+        })
+        function change(type, e) {
+            const dom = document.querySelector('.content')
+            if (type == 1) {
+                dom.style.width = (e.target.value - 0 + 300) + 'px'
+            } else if (type == 2) {
+                dom.style.height = (e.target.value - 0 + 150) + 'px'
+            }
+        }
+    </script>
+</body>
+</html>

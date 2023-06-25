@@ -28,9 +28,11 @@ var ninePatch = (function () {
             offset += 4;
             var type = bin.readASCII(data, offset, 4);
             offset += 4;
-
-            if (type == "npTc") {
-                var index = offset + 1;
+            if(type=="IHDR")  {
+                out.width  = bin.readUint(data, offset);
+		        out.height = bin.readUint(data, offset + 4);
+            } else if (type == "npTc") {
+                var npTcOffset = offset;
                 var keys = [
                     { name: "wasDeserialized", byteLength: 1 },
                     { name: "numXDivs", byteLength: 1 },
@@ -44,24 +46,24 @@ var ninePatch = (function () {
                     { name: "paddingBottom", byteLength: 4 },
                     { name: "colorsOffset", byteLength: 4 },
                 ];
-                for (var index = 0; index < keys.length; index++) {
-                    var key = keys[index];
-                    if (byteLength == 1) {
-                        out[key.name] = data[index];
-                    } else if (byteLength == 4) {
-                        out[key.name] = bin.readUint(data, index);
+                for (var i = 0; i < keys.length; i++) {
+                    var key = keys[i];
+                    if (key.byteLength == 1) {
+                        out[key.name] = data[npTcOffset];
+                    } else if (key.byteLength == 4) {
+                        out[key.name] = bin.readUint(data, npTcOffset);
                     }
-                    index += key.byteLength;
+                    npTcOffset += key.byteLength;
                 }
                 out.xDivs = [];
-                for (var index = 0; index < out.numXDivs; index++) {
-                    out.xDivs.push(bin.readUint(data, index));
-                    index += 4;
+                for (var i = 0; i < out.numXDivs; i++) {
+                    out.xDivs.push(bin.readUint(data, npTcOffset));
+                    npTcOffset += 4;
                 }
                 out.yDivs = [];
-                for (var index = 0; index < out.numYDivs; index++) {
-                    out.yDivs.push(bin.readUint(data, index));
-                    index += 4;
+                for (var i = 0; i < out.numYDivs; i++) {
+                    out.yDivs.push(bin.readUint(data, npTcOffset));
+                    npTcOffset += 4;
                 }
                 break;
             } else if (type == "IEND") {
@@ -73,7 +75,11 @@ var ninePatch = (function () {
         }
         return out;
     }
+    function generateCss(data) {
+        return `border-image-slice: ${data.yDivs[0]} ${data.width - data.xDivs[1]} ${data.height - data.yDivs[1]} ${data.xDivs[0]} fill; border-image-width: auto; padding: ${data.paddingTop}px ${data.paddingRight}px ${data.paddingBottom}px ${data.paddingLeft}px`
+    }
     return {
-        decode: decode
+        decode: decode,
+        generateCss: generateCss
     };
 })();

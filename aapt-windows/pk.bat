@@ -1,0 +1,1 @@
+aapt s -i 1.9.png -o res.png
